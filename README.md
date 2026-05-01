@@ -1,58 +1,110 @@
-# TaskBoard API — Homework 6 (Spring Data JPA)
+# Campus Task Board API
 
 ## 📌 Project Description
 
-This project is a RESTful API built with Spring Boot that manages tasks.
-In Homework 6, the application was upgraded to use **Spring Data JPA** with an **H2 in-memory database**, allowing tasks to be stored and queried using a real database instead of an ArrayList.
+This project is a Spring Boot REST API for managing tasks.
+Homework 7 extends the previous version by adding advanced features such as exception handling, DTOs, soft delete, request logging, and health monitoring.
 
-The API supports CRUD operations, filtering, searching, and pagination.
+The API allows users to create, update, delete, and retrieve tasks while ensuring clean architecture and robust error handling.
 
 ---
 
-## ⚙️ Technologies Used
+## 🛠 Technologies Used
 
-* Java
+* Java 21
 * Spring Boot
 * Spring Data JPA
 * H2 Database
 * Maven
 * Lombok
+* Spring Validation
+* Spring Boot Actuator
+* Postman (for testing)
 
 ---
 
-## ▶️ How to Run the Project
+## 🚀 Features
+
+### ✅ Exception Handling
+
+* Custom exceptions:
+
+    * `TaskNotFoundException`
+    * `InvalidTaskDataException`
+* Global exception handler using `@RestControllerAdvice`
+* Handles:
+
+    * 404 Not Found
+    * 400 Validation errors
+    * 500 Internal Server Error
+* Returns structured JSON error responses
+
+---
+
+### ✅ DTOs (Data Transfer Objects)
+
+* `TaskRequest` – handles incoming requests with validation
+* `TaskResponse` – formats outgoing responses
+* Separates API layer from database entity
+* Prevents exposing internal fields like `deleted`
+
+---
+
+### ✅ Soft Delete
+
+* Tasks are not permanently removed from the database
+* A `deleted` field is added to the Task entity
+* Deleting a task sets `deleted = true`
+* Only non-deleted tasks are returned in queries
+* Restore endpoint allows recovery of deleted tasks
+
+---
+
+### ✅ Request Logging
+
+* Logs every API request:
+
+    * HTTP method
+    * Request URI
+    * Response status
+    * Execution time
+* Helps with debugging and monitoring
+
+---
+
+### ✅ Actuator (Health Monitoring)
+
+* Provides production-ready monitoring endpoints:
+
+    * `/actuator/health`
+    * `/actuator/info`
+    * `/actuator/metrics`
+* Used to check application status and performance
+
+---
+
+## ▶️ How to Run the Application
 
 1. Clone the repository:
 
+```bash
+git clone https://github.com/jmzla/HW7.git
 ```
-git clone https://github.com/jmzla/HW_6.git
-```
 
-2. Open in IntelliJ
+2. Open the project in IntelliJ IDEA or any Java IDE
 
-3. Run the main application class
+3. Make sure Java 21 is installed
 
-4. The server will start at:
+4. Run the application:
+
+* Right-click `CampusTaskboardApplication.java`
+* Click **Run**
+
+5. The application will start at:
 
 ```
 http://localhost:8080
 ```
-
----
-
-## 🗄️ H2 Database Console
-
-Access the H2 console:
-
-```
-http://localhost:8080/h2-console
-```
-
-### Connection Settings:
-
-* JDBC URL: `jdbc:h2:mem:taskboarddb`
-* Username: `sa`
-* Password: (leave empty)
 
 ---
 
@@ -66,107 +118,138 @@ GET /api/tasks
 
 ---
 
+### 🔹 Get Task by ID
+
+```
+GET /api/tasks/{id}
+```
+
+---
+
 ### 🔹 Create Task
 
 ```
 POST /api/tasks
 ```
 
-Example Body:
+Example request:
 
 ```json
 {
-  "title": "Finish Homework",
-  "description": "Complete JPA assignment",
-  "completed": false,
+  "title": "Complete Homework 7",
+  "description": "Finish API",
   "priority": "HIGH"
 }
 ```
 
 ---
 
-### 🔹 Get Completed Tasks
+### 🔹 Update Task
 
 ```
-GET /api/tasks/completed
-```
-
----
-
-### 🔹 Get Incomplete Tasks
-
-```
-GET /api/tasks/incomplete
+PUT /api/tasks/{id}
 ```
 
 ---
 
-### 🔹 Filter by Priority
+### 🔹 Delete Task (Soft Delete)
 
 ```
-GET /api/tasks/priority/{priority}
-```
-
-Example:
-
-```
-GET /api/tasks/priority/HIGH
+DELETE /api/tasks/{id}
 ```
 
 ---
 
-### 🔹 Search Tasks
+### 🔹 Restore Task
 
 ```
-GET /api/tasks/search?keyword=homework
-```
-
----
-
-### 🔹 Pagination & Sorting
-
-```
-GET /api/tasks/paginated?page=0&size=5&sortBy=title
+PUT /api/tasks/{id}/restore
 ```
 
 ---
 
-## 📊 Pagination Response Example
+## 📊 Actuator Endpoints
+
+```
+/actuator/health
+/actuator/info
+/actuator/metrics
+```
+
+Example response:
 
 ```json
 {
-  "content": [
-    { "id": 1, "title": "Task 1" },
-    { "id": 2, "title": "Task 2" }
-  ],
-  "totalElements": 10,
-  "totalPages": 2,
-  "size": 5,
-  "number": 0,
-  "first": true,
-  "last": false
+  "status": "UP"
 }
 ```
 
 ---
 
-## 🧠 Key Concepts Learned
+## ⚠️ Validation Rules
 
-* **JPA Entities**: Used `@Entity`, `@Id`, `@GeneratedValue`, and `@Column` to map Java objects to database tables.
-* **Repositories**: Extended `JpaRepository` to get built-in CRUD operations.
-* **Query Methods**: Used method naming conventions like `findByCompletedTrue()` to auto-generate SQL queries.
-* **Custom Queries**: Implemented search using `@Query`.
-* **Pagination**: Used `Page`, `Pageable`, and `PageRequest` for efficient data handling.
+* Title must not be blank
+* Title must be between 3 and 100 characters
+* Description must not exceed 500 characters
+
+---
+
+## ❌ Example Error Responses
+
+### 404 Not Found
+
+```json
+{
+  "status": 404,
+  "error": "Not Found",
+  "message": "Task with ID 10 not found",
+  "path": "/api/tasks/10"
+}
+```
+
+---
+
+### 400 Validation Error
+
+```json
+{
+  "status": 400,
+  "error": "Validation Failed",
+  "message": "Input validation failed",
+  "errors": {
+    "title": "Title must be between 3 and 100 characters"
+  }
+}
+```
+
+---
+
+### 500 Internal Server Error
+
+```json
+{
+  "status": 500,
+  "error": "Internal Server Error",
+  "message": "An unexpected error occurred",
+  "path": "/api/tasks"
+}
+```
+
+---
+
+## 📸 Screenshots Included
+
+* 404 error response
+* 400 validation error
+* 500 internal error
+* Soft delete working
+* Health endpoint (`/actuator/health`)
+* Request logging in console
 
 ---
 
 ## 🎥 Video Explanation
 
-https://www.youtube.com/watch?v=a-YKsu4U-9Y
+👉 Video Link:
+PASTE YOUR VIDEO LINK HERE
 
----
-
-## ⚠️ Notes
-
-* H2 is an **in-memory database**, so data resets when the application stops.
-* `spring.jpa.hibernate.ddl-auto=update` is used for automatic schema updates.
