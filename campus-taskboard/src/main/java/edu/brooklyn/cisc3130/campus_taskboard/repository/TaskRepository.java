@@ -29,6 +29,16 @@ public interface TaskRepository extends JpaRepository<Task, Integer> {
     // Find completed tasks by priority
     List<Task> findByCompletedAndPriority(Boolean completed, Task.Priority priority);
 
+    // Find only non-deleted tasks
+    List<Task> findByDeletedFalse();
+
+    // Find only deleted tasks
+    List<Task> findByDeletedTrue();
+
+    // Override findAll to exclude deleted
+    @Query("SELECT t FROM Task t WHERE t.deleted = false")
+    List<Task> findAllActive();
+
     // Custom query using JPQL
     @Query("SELECT t FROM Task t WHERE t.title LIKE %:keyword% OR t.description LIKE %:keyword%")
     List<Task> searchTasks(@Param("keyword") String keyword);

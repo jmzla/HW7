@@ -16,21 +16,29 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
+
         if (taskRepository.count() == 0) {
-            taskRepository.save(new Task(
-                    null, "Complete Homework 6",
-                    "Finish Spring Data JPA assignment",
-                    false, Task.Priority.HIGH, null, null));
 
-            taskRepository.save(new Task(
-                    null, "Study for Midterm",
-                    "Review chapters 1-5",
-                    false, Task.Priority.HIGH, null, null));
+            Task task1 = new Task();
+            task1.setTitle("Complete Homework 6");
+            task1.setDescription("Finish Spring Data JPA assignment");
+            task1.setCompleted(false);
+            task1.setPriority(Task.Priority.HIGH);
+            taskRepository.save(task1);
 
-            taskRepository.save(new Task(
-                    null, "Buy groceries",
-                    "Milk, eggs, bread",
-                    true, Task.Priority.LOW, null, null));
+            Task task2 = new Task();
+            task2.setTitle("Study for Midterm");
+            task2.setDescription("Review chapters 1-5");
+            task2.setCompleted(false);
+            task2.setPriority(Task.Priority.HIGH);
+            taskRepository.save(task2);
+
+            Task task3 = new Task();
+            task3.setTitle("Buy groceries");
+            task3.setDescription("Milk, eggs, bread");
+            task3.setCompleted(true);
+            task3.setPriority(Task.Priority.LOW);
+            taskRepository.save(task3);
         }
     }
 }
