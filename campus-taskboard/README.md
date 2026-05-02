@@ -251,5 +251,5 @@ Example response:
 ## 🎥 Video Explanation
 
 👉 Video Link:
-PASTE YOUR VIDEO LINK HERE
+https://www.youtube.com/watch?v=Uiub3J9hIHA
 
